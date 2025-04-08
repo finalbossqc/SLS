@@ -5,7 +5,7 @@
 import com.comsol.model.*;
 import com.comsol.model.util.*;
 
-/** Model exported on Mar 29 2025, 17:07 by COMSOL 6.1.0.357. */
+/** Model exported on Apr 8 2025, 13:09 by COMSOL 6.1.0.357. */
 public class Polyamide2DModel {
 
   public static Model run() {
@@ -19,18 +19,18 @@ public class Polyamide2DModel {
     model.param().set("T0", "50 [degC]", "Initial temperature");
     model.param().set("Tamb", "T0", "Ambient temperature");
     model.param().set("dwidth", "100 [um]", "Thickness value for boundary conduction");
-    model.param().set("epsilon", "0.1*D", "interface thickness");
+    model.param().set("epsilon", "0.15*D", "interface thickness");
     model.param().set("D", "100 [um]", "Particle size");
     model.param().set("Nx", "10", "Number of particles in x direction");
     model.param().set("Ny", "2", "Number of particles in the y direction");
     model.param().set("Lheight", "100 [um]", "Height of previous layer");
-    model.param().set("vlaser", "500 [mm/s]", "Laser speed");
-    model.param().set("Ep", "5 [W]", "Laser power");
-    model.param().set("laserpenetration", "200 [um]", "Laser penetration depth");
+    model.param().set("vlaser", "200 [mm/s]", "Laser speed");
+    model.param().set("Ep", "3 [W]", "Laser power");
+    model.param().set("laserpenetration", "100 [um]", "Laser penetration depth");
     model.param().set("A", "0.95", "Laser power absorption factor");
     model.param().set("rlaser", "D", "Radial distance of laser width");
     model.param().set("xr", "onlocation - vlaser * ontime");
-    model.param().set("yr", "(Lheight + D)*Ny");
+    model.param().set("yr", "Lheight + D*Ny");
     model.param().set("onlocation", "0 [um]");
     model.param().set("ontime", "0.02 [s]");
     model.param().set("offtime", "0.16 [s]");
@@ -71,15 +71,14 @@ public class Polyamide2DModel {
     model.component("comp1").geom("geom2").feature("arr1").selection("input").set("c1");
     model.component("comp1").geom("geom2").create("r1", "Rectangle");
     model.component("comp1").geom("geom2").feature("r1").set("pos", new int[]{0, 0});
-    model.component("comp1").geom("geom2").feature("r1").set("size", new String[]{"D*(Nx+2)", "Lheight + D*Ny*1.75"});
+    model.component("comp1").geom("geom2").feature("r1").set("size", new String[]{"D*(Nx+2)", "Lheight + D*Ny*2"});
     model.component("comp1").geom("geom2").create("r2", "Rectangle");
     model.component("comp1").geom("geom2").feature("r2").set("pos", new int[]{0, 0});
     model.component("comp1").geom("geom2").feature("r2").set("size", new String[]{"D*(Nx+2)", "Lheight"});
     model.component("comp1").geom("geom2").run();
-    model.component("comp1").geom("geom2").run("fin");
 
     model.component("comp1").variable().create("var1");
-    model.component("comp1").variable("var1").set("Ed", "Ep / (pi*rlaser^2)");
+    model.component("comp1").variable("var1").set("Ed", "Ep / (D*pi*rlaser^2)");
     model.component("comp1").variable("var1")
          .set("G_space", "exp(-1* ( (x  - (xr+vlaser*t) )^2 ) / (2 * rlaser^2 ) )");
     model.component("comp1").variable("var1").set("BeerLambert", "exp( (y - yr) / laserpenetration)");
@@ -89,8 +88,8 @@ public class Polyamide2DModel {
          .set("rho", "mat6.def.rho(1 [atm], T0)*pf.Vf1 + mat8.def.rho*pf.Vf2", "Density");
     model.component("comp1").variable("var1")
          .set("Cp", "mat6.def.Cp(T)*pf.Vf1 + mat8.def.Cp(T)*pf.Vf2", "Heat capacity at constant pressure");
-    model.component("comp1").variable("var1").set("mu", "mat6.def.mu*pf.Vf1", "Dynamic viscosity");
-    model.component("comp1").variable("var1").set("eta", "mat8.rheo.A(T)*mat8.rheo.aT(T)");
+    model.component("comp1").variable("var1").set("mu", "mat6.def.eta(T0)*pf.Vf1 + 0.001", "Dynamic viscosity");
+    model.component("comp1").variable("var1").set("eta", "mat8.rheo.A(T)*mat8.rheo.aT(T) + 0.001");
     model.component("comp1").variable("var1").set("lambdap", "mat8.rheo.B(T)*mat8.rheo.aT(T)");
     model.component("comp1").variable("var1").set("neta", "2*mat8.rheo.C(T)+1");
     model.component("comp1").variable("var1").set("sigma", "mat8.def.sigma(T)");
@@ -132,12 +131,14 @@ public class Polyamide2DModel {
     model.component("comp1").physics().create("ht", "HeatTransferInFluids", "geom2");
     model.component("comp1").physics("ht").create("hs1", "HeatSource", 2);
     model.component("comp1").physics("ht").feature("hs1").selection()
-         .set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+         .set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
     model.component("comp1").physics("ht").create("hs2", "HeatSource", 2);
     model.component("comp1").physics("ht").feature("hs2").selection()
-         .set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+         .set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
     model.component("comp1").physics("ht").create("hf1", "HeatFluxBoundary", 1);
     model.component("comp1").physics("ht").feature("hf1").selection().all();
+    model.component("comp1").physics("ht").create("ophf1", "OutOfPlaneHeatFlux", 2);
+    model.component("comp1").physics("ht").feature("ophf1").selection().all();
     model.component("comp1").physics().create("rteeq", "PoissonEquation", "geom2");
     model.component("comp1").physics("rteeq").identifier("rteeq");
     model.component("comp1").physics("rteeq").field("dimensionless").field("Grad");
@@ -153,17 +154,18 @@ public class Polyamide2DModel {
     model.component("comp1").probe().create("point4", "Point");
     model.component("comp1").probe("point3").selection()
          .set(4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22, 24, 26, 27, 29, 31, 32, 34, 36, 37, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54);
-    model.component("comp1").probe("point4").selection().set(6, 11, 16, 21, 26, 31, 36, 41, 46, 51);
+    model.component("comp1").probe("point4").selection()
+         .set(4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22, 24, 26, 27, 29, 31, 32, 34, 36, 37, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54);
 
     model.result().table("evl2").label("Evaluation 2D");
     model.result().table("evl2").comments("Interactive 2D values");
     model.result().table("tbl1").label("Probe Table 1");
     model.result().table("tbl2").label("Probe Table 2");
 
-    model.component("comp1").view("view1").axis().set("xmin", -60);
-    model.component("comp1").view("view1").axis().set("xmax", 1260);
-    model.component("comp1").view("view1").axis().set("ymin", -252.26065063476562);
-    model.component("comp1").view("view1").axis().set("ymax", 702.2606811523438);
+    model.component("comp1").view("view1").axis().set("xmin", -29.999937057495117);
+    model.component("comp1").view("view1").axis().set("xmax", 1229.9998779296875);
+    model.component("comp1").view("view1").axis().set("ymin", -399.699462890625);
+    model.component("comp1").view("view1").axis().set("ymax", 659.908203125);
 
     model.component("comp1").material("mat6").label("Oxygen");
     model.component("comp1").material("mat6").set("family", "air");
@@ -362,7 +364,7 @@ public class Polyamide2DModel {
     model.component("comp1").material("mat8").propertyGroup("rheo").func("an4").set("fununit", "1");
     model.component("comp1").material("mat8").propertyGroup("rheo").func("an4").set("argunit", new String[]{"K"});
     model.component("comp1").material("mat8").propertyGroup("rheo").func("an4")
-         .set("plotargs", new String[][]{{"T", "300", "1000"}});
+         .set("plotargs", new String[][]{{"T", "300", "400"}});
 
     model.component("comp1").coordSystem("sys1").set("name", "sys2");
 
@@ -394,13 +396,14 @@ public class Polyamide2DModel {
     model.component("comp1").physics("spf").feature("init1").set("p_init", "1[atm]");
     model.component("comp1").physics("spf").feature("init1")
          .set("CompensateForHydrostaticPressureApproximation", false);
-    model.component("comp1").physics("spf").feature("wallbc1").set("BoundaryCondition", "NavierSlip");
+    model.component("comp1").physics("spf").feature("init1").set("CompensateForHydrostaticPressure", false);
     model.component("comp1").physics("spf").feature("vf2").set("F", new String[][]{{"Fstx"}, {"Fsty"}, {"0"}});
     model.component("comp1").physics("spf").feature("vf2").label("Surface Tension");
     model.component("comp1").physics("spf").feature("out1").set("p0", "1 [atm]");
     model.component("comp1").physics("spf").feature("out1").set("NormalFlow", true);
     model.component("comp1").physics("spf").feature("out1")
          .set("CompensateForHydrostaticPressureApproximation", false);
+    model.component("comp1").physics("spf").feature("out1").set("CompensateForHydrostaticPressure", false);
     model.component("comp1").physics("pf").prop("ShapeProperty").set("order_phasefield", 2);
     model.component("comp1").physics("pf").feature("pfm1").set("epsilon_pf", "epsilon");
     model.component("comp1").physics("pf").feature("pfm1").set("chi", 0);
@@ -428,6 +431,7 @@ public class Polyamide2DModel {
     model.component("comp1").physics("ht").feature("hs2").set("Q0", "Qr");
     model.component("comp1").physics("ht").feature("hs2").set("materialType", "nonSolid");
     model.component("comp1").physics("ht").feature("hf1").set("q0_input", "k*(Tamb - T) / ht.dz");
+    model.component("comp1").physics("ht").feature("ophf1").set("q0_u", "2*k*(Tamb - T) / dwidth");
     model.component("comp1").physics("rteeq").label("RTE");
     model.component("comp1").physics("rteeq").prop("ShapeProperty").set("order", 1);
     model.component("comp1").physics("rteeq").prop("ShapeProperty").set("valueType", "real");
@@ -437,17 +441,17 @@ public class Polyamide2DModel {
     model.component("comp1").physics("rteeq").feature("peq1").set("c", new String[][]{{"Dp1", "0", "0", "Dp1"}});
     model.component("comp1").physics("rteeq").feature("flux1").set("g", "0.5*(4*pi*Ib - Grad)");
 
+    return model;
+  }
+
+  public static Model run2(Model model) {
+
     model.component("comp1").mesh("mesh3").label("Mesh 2");
     model.component("comp1").mesh("mesh3").feature("size").set("hauto", 6);
     model.component("comp1").mesh("mesh3").feature("size").set("custom", "on");
     model.component("comp1").mesh("mesh3").feature("size").set("table", "cfd");
     model.component("comp1").mesh("mesh3").feature("size").set("hmax", 10);
     model.component("comp1").mesh("mesh3").feature("size").set("hmin", 8);
-
-    return model;
-  }
-
-  public static Model run2(Model model) {
     model.component("comp1").mesh("mesh3").feature("size").set("hgrad", 2);
     model.component("comp1").mesh("mesh3").feature("ftri1").set("smoothmaxiter", 10);
     model.component("comp1").mesh("mesh3").feature("ftri1").set("smoothmaxdepth", 8);
@@ -458,7 +462,7 @@ public class Polyamide2DModel {
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hmaxactive", true);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hmin", "0.15*D");
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hminactive", true);
-    model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurve", 1);
+    model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurve", 0.7);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurveactive", true);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hnarrow", 0.1);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hnarrowactive", true);
@@ -475,9 +479,9 @@ public class Polyamide2DModel {
     model.component("comp1").probe("point3").set("window", "window2");
     model.component("comp1").probe("point4").label("Porosity Probe");
     model.component("comp1").probe("point4").set("probename", "porosity");
-    model.component("comp1").probe("point4").set("expr", "pf.Vf2");
+    model.component("comp1").probe("point4").set("expr", "pf.Vf1");
     model.component("comp1").probe("point4").set("unit", "1");
-    model.component("comp1").probe("point4").set("descr", "Volume fraction of fluid 2");
+    model.component("comp1").probe("point4").set("descr", "Volume fraction of fluid 1");
     model.component("comp1").probe("point4").set("table", "tbl2");
     model.component("comp1").probe("point4").set("window", "window2");
 
@@ -590,16 +594,15 @@ public class Polyamide2DModel {
     model.sol().create("sol6");
     model.sol("sol6").study("std1");
     model.sol("sol6").label("Parametric Solutions 1");
-
-    model.batch().create("p1", "Parametric");
-    model.batch("p1").create("so1", "Solutionseq");
-    model.batch("p1").study("std1");
+    model.sol().create("sol7");
+    model.sol("sol7").study("std1");
+    model.sol("sol7").label("Parametric Solutions 2");
 
     model.result().dataset().create("an1_ds1", "Grid1D");
-    model.result().dataset().create("dset6", "Solution");
     model.result().dataset().create("avh4", "Average");
-    model.result().dataset().create("avh5", "Average");
     model.result().dataset().create("dset7", "Solution");
+    model.result().dataset().create("dset8", "Solution");
+    model.result().dataset().create("avh5", "Average");
     model.result().dataset("dset3").set("probetag", "point4");
     model.result().dataset("dset4").set("solution", "sol3");
     model.result().dataset("an1_ds1").set("data", "none");
@@ -610,15 +613,15 @@ public class Polyamide2DModel {
     model.result().dataset("avh4").selection().geom("geom2", 0);
     model.result().dataset("avh4").selection()
          .set(4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22, 24, 26, 27, 29, 31, 32, 34, 36, 37, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54);
+    model.result().dataset("dset7").set("solution", "sol6");
+    model.result().dataset("dset8").set("solution", "sol7");
     model.result().dataset("avh5").set("probetag", "point4");
     model.result().dataset("avh5").set("data", "dset3");
     model.result().dataset("avh5").selection().geom("geom2", 0);
-    model.result().dataset("avh5").selection().set(6, 11, 16, 21, 26, 31, 36, 41, 46, 51);
-    model.result().dataset("dset7").set("solution", "sol6");
+    model.result().dataset("avh5").selection()
+         .set(4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22, 24, 26, 27, 29, 31, 32, 34, 36, 37, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54);
     model.result().numerical().create("pev4", "EvalPoint");
-    model.result().numerical().create("pev5", "EvalPoint");
     model.result().numerical("pev4").set("probetag", "point3");
-    model.result().numerical("pev5").set("probetag", "point4");
     model.result().create("pg1", "PlotGroup2D");
     model.result().create("pg10", "PlotGroup2D");
     model.result().create("pg2", "PlotGroup2D");
@@ -659,11 +662,13 @@ public class Polyamide2DModel {
     model.component("comp1").probe("point3").genResult(null);
     model.component("comp1").probe("point4").genResult(null);
 
+    model.study("std1").feature("param").active(false);
     model.study("std1").feature("param").set("sweeptype", "filled");
     model.study("std1").feature("param").set("pname", new String[]{"Ep", "vlaser"});
-    model.study("std1").feature("param").set("plistarr", new String[]{"1, 3, 5", "100 [mm/s]"});
+    model.study("std1").feature("param")
+         .set("plistarr", new String[]{"2, 4", "100 [mm/s], 200 [mm/s], 300 [mm/s], 400 [mm/s]"});
     model.study("std1").feature("param").set("punit", new String[]{"W", "m/s"});
-    model.study("std1").feature("time").set("tlist", "range(0,0.01,0.5)");
+    model.study("std1").feature("time").set("tlist", "range(0,0.0001,0.1)");
     model.study("std1").feature("time").set("usertol", true);
     model.study("std1").feature("time").set("rtol", 0.1);
     model.study("std1").feature("time").set("plot", true);
@@ -886,17 +891,17 @@ public class Polyamide2DModel {
          .feature("d1").set("linsolver", "pardiso");
     model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("ps").feature("mg1").feature("cs")
          .feature("d1").set("pivotperturb", 1.0E-13);
+
+    return model;
+  }
+
+  public static Model run3(Model model) {
     model.sol("sol1").feature("t1").feature("i3").label("AMG, heat transfer variables (ht)");
     model.sol("sol1").feature("t1").feature("i3").set("rhob", 20);
     model.sol("sol1").feature("t1").feature("i3").feature("ilDef").label("Incomplete LU 1");
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").label("Multigrid 1.1");
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").set("prefun", "saamg");
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").set("maxcoarsedof", 50000);
-
-    return model;
-  }
-
-  public static Model run3(Model model) {
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").set("saamgcompwise", true);
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").set("usesmooth", false);
     model.sol("sol1").feature("t1").feature("i3").feature("mg1").feature("pr").label("Presmoother 1");
@@ -918,7 +923,7 @@ public class Polyamide2DModel {
     model.sol("sol4").attach("std1");
     model.sol("sol4").feature("st1").label("Compile Equations: Phase Initialization");
     model.sol("sol4").feature("v1").label("Dependent Variables 1.1");
-    model.sol("sol4").feature("v1").set("clist", new String[]{"5.0E-4[s]"});
+    model.sol("sol4").feature("v1").set("clist", new String[]{"1.0E-4[s]"});
     model.sol("sol4").feature("s1").label("Stationary Solver 1.1");
     model.sol("sol4").feature("s1").feature("dDef").label("Direct 2");
     model.sol("sol4").feature("s1").feature("aDef").label("Advanced 1");
@@ -978,12 +983,12 @@ public class Polyamide2DModel {
     model.sol("sol4").feature("v2").set("notsol", "sol4");
     model.sol("sol4").feature("v2").set("notsoluse", "sol5");
     model.sol("sol4").feature("v2").set("notsolnum", "auto");
-    model.sol("sol4").feature("v2").set("clist", new String[]{"range(0,0.01,0.5)", "5.0E-4[s]"});
+    model.sol("sol4").feature("v2").set("clist", new String[]{"range(0,0.0001,0.1)", "1.0E-4[s]"});
     model.sol("sol4").feature("v2").feature("comp1_phipf").set("scalemethod", "manual");
     model.sol("sol4").feature("v2").feature("comp1_phipf").set("scaleval", 1);
     model.sol("sol4").feature("t1").label("Time-Dependent Solver 1.1");
     model.sol("sol4").feature("t1").set("control", "time");
-    model.sol("sol4").feature("t1").set("tlist", "range(0,0.01,0.5)");
+    model.sol("sol4").feature("t1").set("tlist", "range(0,0.0001,0.1)");
     model.sol("sol4").feature("t1").set("rtol", 0.1);
     model.sol("sol4").feature("t1").set("atolglobalfactor", 0.05);
     model.sol("sol4").feature("t1")
@@ -1157,17 +1162,6 @@ public class Polyamide2DModel {
          .set("pivotperturb", 1.0E-13);
     model.sol("sol4").runAll();
 
-    model.batch("p1").set("control", "param");
-    model.batch("p1").set("sweeptype", "filled");
-    model.batch("p1").set("pname", new String[]{"Ep", "vlaser"});
-    model.batch("p1").set("plistarr", new String[]{"1, 3, 5", "100 [mm/s]"});
-    model.batch("p1").set("punit", new String[]{"W", "m/s"});
-    model.batch("p1").set("err", true);
-    model.batch("p1").feature("so1").set("seq", "sol4");
-    model.batch("p1").feature("so1").set("psol", "sol6");
-    model.batch("p1").attach("std1");
-    model.batch("p1").run();
-
     model.result().dataset("dset3").label("Probe Solution 3");
     model.result().dataset("an1_ds1").label("Grid 1D 1a");
     model.result().dataset("an1_ds1").set("function", "all");
@@ -1176,6 +1170,7 @@ public class Polyamide2DModel {
     model.result().dataset("an1_ds1").set("parmax1", 400);
     model.result().dataset("an1_ds1").set("res1", 10000);
     model.result().dataset("an1_ds1").set("distribution", "mixed");
+    model.result().numerical().remove("pev5");
     model.result().numerical("pev4").setResult();
     model.result("pg1").label("Heating and Volume Fraction");
     model.result("pg1").set("titletype", "label");
@@ -1231,9 +1226,9 @@ public class Polyamide2DModel {
     model.result("pg7").set("showlegends", false);
     model.result("pg7").set("windowtitle", "Probe Plot 2");
     model.result("pg7").create("tblp1", "Table");
-    model.result("pg7").feature("glob1").set("expr", new String[]{"porosity"});
-    model.result("pg7").feature("glob1").set("unit", new String[]{""});
-    model.result("pg7").feature("glob1").set("descr", new String[]{""});
+    model.result("pg7").feature("glob1").set("expr", new String[]{"rhoprobe"});
+    model.result("pg7").feature("glob1").set("unit", new String[]{"kg/m^3"});
+    model.result("pg7").feature("glob1").set("descr", new String[]{"Density Probe"});
     model.result("pg7").feature("glob1").set("linewidth", "preference");
     model.result("pg7").feature("tblp1").label("Probe Table Graph 1");
     model.result("pg7").feature("tblp1").set("table", "tbl2");
@@ -1246,8 +1241,9 @@ public class Polyamide2DModel {
     model.result("pg8").feature("surf1").set("resolution", "normal");
     model.result().export("anim1").label("Temperature and Vf2");
     model.result().export("anim1").set("plotgroup", "pg10");
-    model.result().export("anim1").set("giffilename", "/work/users/m/s/mshourya/SLS/Complete/Results/T+Vf2.gif");
-    model.result().export("anim1").set("maxframes", 300);
+    model.result().export("anim1").set("giffilename", "/users/m/s/mshourya/SLS/Complete/Results/T+Vf2.gif");
+    model.result().export("anim1").set("fps", 50);
+    model.result().export("anim1").set("framesel", "all");
     model.result().export("anim1").set("size", "current");
     model.result().export("anim1").set("repeat", "forever");
     model.result().export("anim1").set("fontsize", "9");
@@ -1302,9 +1298,9 @@ public class Polyamide2DModel {
     model.result().export("anim2").set("axes2d", "on");
     model.result().export("anim2").set("showgrid", "on");
     model.result().export("anim3").label("Heating and Vf2");
-    model.result().export("anim3")
-         .set("giffilename", "/work/users/m/s/mshourya/SLS/Complete/Results/Heating+Vf2.gif");
-    model.result().export("anim3").set("maxframes", 300);
+    model.result().export("anim3").set("giffilename", "/users/m/s/mshourya/SLS/Complete/Results/Heating+Vf2.gif");
+    model.result().export("anim3").set("fps", 50);
+    model.result().export("anim3").set("framesel", "all");
     model.result().export("anim3").set("size", "current");
     model.result().export("anim3").set("repeat", "forever");
     model.result().export("anim3").set("fontsize", "9");

@@ -5,7 +5,7 @@
 import com.comsol.model.*;
 import com.comsol.model.util.*;
 
-/** Model exported on Mar 29 2025, 17:01 by COMSOL 6.1.0.357. */
+/** Model exported on Apr 8 2025, 13:12 by COMSOL 6.1.0.357. */
 public class Molybdenum2DModel {
 
   public static Model run() {
@@ -16,22 +16,22 @@ public class Molybdenum2DModel {
     model.label("Molybdenum2DModel.mph");
 
     model.param().set("R", "8.31446261815324 [J/(mol*K)]", "Gas constant");
-    model.param().set("T0", "80 [degC]", "Initial temperature");
+    model.param().set("T0", "50 [degC]", "Initial temperature");
     model.param().set("Tamb", "T0", "Ambient temperature");
     model.param().set("dwidth", "100 [um]", "Thickness value for boundary conduction");
-    model.param().set("epsilon", "0.1*D", "interface thickness");
+    model.param().set("epsilon", "0.15*D", "interface thickness");
     model.param().set("D", "100 [um]", "Particle size");
     model.param().set("Nx", "10", "Number of particles in x direction");
     model.param().set("Ny", "2", "Number of particles in the y direction");
     model.param().set("Lheight", "100 [um]", "Height of previous layer");
     model.param().set("vlaser", "500 [mm/s]", "Laser speed");
-    model.param().set("Ep", "100 [W]", "Laser power");
-    model.param().set("laserpenetration", "500 [um]", "Laser penetration depth");
-    model.param().set("A", "0.95", "Laser power absorption factor");
+    model.param().set("Ep", "300 [W]", "Laser power");
+    model.param().set("laserpenetration", "D", "Laser penetration depth");
+    model.param().set("A", "0.5", "Laser power absorption factor");
     model.param().set("rlaser", "50 [um]", "Radial distance of laser width");
     model.param().set("xr", "onlocation - vlaser * ontime");
     model.param().set("yr", "Lheight + D*Ny");
-    model.param().set("onlocation", "0 [um]");
+    model.param().set("onlocation", "2*D + D/2");
     model.param().set("ontime", "0.02 [s]");
     model.param().set("offtime", "0.16 [s]");
     model.param().set("Dp1", "1/(3*kappa)", "Radiation factor assuming no scattering");
@@ -58,13 +58,14 @@ public class Molybdenum2DModel {
     model.component("comp1").func("rect1").set("smooth", 0.001);
     model.component("comp1").func("gp1").label("delta");
     model.component("comp1").func("gp1").set("funcname", "delta");
+    model.component("comp1").func("gp1").set("sigma", 5);
 
     model.component("comp1").mesh().create("mesh3");
 
     model.component("comp1").geom("geom2").label("Geometry 1");
     model.component("comp1").geom("geom2").lengthUnit("\u00b5m");
     model.component("comp1").geom("geom2").create("c1", "Circle");
-    model.component("comp1").geom("geom2").feature("c1").set("pos", new String[]{"D*1.5", "D/2 + Lheight"});
+    model.component("comp1").geom("geom2").feature("c1").set("pos", new String[]{"D/2 + D", "D/2 + Lheight"});
     model.component("comp1").geom("geom2").feature("c1").set("r", "D/2");
     model.component("comp1").geom("geom2").create("arr1", "Array");
     model.component("comp1").geom("geom2").feature("arr1").set("fullsize", new String[]{"Nx", "Ny"});
@@ -72,12 +73,11 @@ public class Molybdenum2DModel {
     model.component("comp1").geom("geom2").feature("arr1").selection("input").set("c1");
     model.component("comp1").geom("geom2").create("r1", "Rectangle");
     model.component("comp1").geom("geom2").feature("r1").set("pos", new int[]{0, 0});
-    model.component("comp1").geom("geom2").feature("r1").set("size", new String[]{"D*(Nx+2)", "Lheight + D*Ny*1.75"});
+    model.component("comp1").geom("geom2").feature("r1").set("size", new String[]{"D*(Nx+2)", "Lheight + D*Ny*2"});
     model.component("comp1").geom("geom2").create("r2", "Rectangle");
     model.component("comp1").geom("geom2").feature("r2").set("pos", new int[]{0, 0});
     model.component("comp1").geom("geom2").feature("r2").set("size", new String[]{"D*(Nx+2)", "Lheight"});
     model.component("comp1").geom("geom2").run();
-    model.component("comp1").geom("geom2").run("fin");
 
     model.component("comp1").variable().create("var1");
     model.component("comp1").variable("var1").set("Ed", "Ep / (D*pi*rlaser^2)");
@@ -89,9 +89,9 @@ public class Molybdenum2DModel {
     model.component("comp1").variable("var1")
          .set("rho", "mat6.def.rho(1 [atm], T0)*pf.Vf1 + mat7.def.rho(T0)*pf.Vf2", "Density");
     model.component("comp1").variable("var1")
-         .set("Cp", "mat6.def.Cp(T)*pf.Vf1 + mat7.def.Cp(T)*pf.Vf2", "Heat capacity at constant pressure");
+         .set("Cp", "mat6.def.Cp(T0)*pf.Vf1 + mat7.def.Cp(T)*pf.Vf2", "Heat capacity at constant pressure");
     model.component("comp1").variable("var1")
-         .set("mu", "mat6.def.mu*pf.Vf1 + mat7.def.mu(T)*pf.Vf2", "Dynamic viscosity");
+         .set("mu", "mat6.def.eta(T0)*pf.Vf1 + mat7.def.mu(T)*pf.Vf2 + 0.005", "Dynamic viscosity");
     model.component("comp1").variable("var1").set("sigma", "mat7.def.sigma(T)");
     model.component("comp1").variable("var1").set("lambda", "3*epsilon*sigma/sqrt(8)");
     model.component("comp1").variable("var1").set("Fstx", "lambda/(epsilon^2) * psi * phipfx");
@@ -110,9 +110,9 @@ public class Molybdenum2DModel {
     model.component("comp1").material("mat6").propertyGroup("idealGas").func().create("Cp", "Piecewise");
     model.component("comp1").material("mat7").propertyGroup("def").func().create("an1", "Analytic");
     model.component("comp1").material("mat7").propertyGroup("def").func().create("an2", "Analytic");
-    model.component("comp1").material("mat7").propertyGroup("def").func().create("an3", "Analytic");
     model.component("comp1").material("mat7").propertyGroup("def").func().create("an4", "Analytic");
     model.component("comp1").material("mat7").propertyGroup("def").func().create("an5", "Analytic");
+    model.component("comp1").material("mat7").propertyGroup("def").func().create("pw1", "Piecewise");
     model.component("comp1").material("mat7").propertyGroup().create("Enu", "Young's modulus and Poisson's ratio");
     model.component("comp1").material("mat7").propertyGroup().create("Murnaghan", "Murnaghan");
 
@@ -152,20 +152,16 @@ public class Molybdenum2DModel {
          .set(4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22, 24, 26, 27, 29, 31, 32, 34, 36, 37, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54);
     model.component("comp1").probe("point4").selection().set(6, 11, 16, 21, 26, 31, 36, 41, 46, 51);
 
-    model.ode().create("conpar1");
-    model.ode().create("conpar3");
-    model.ode().create("conpar5");
-
     model.result().table("evl2").label("Evaluation 2D");
     model.result().table("evl2").comments("Interactive 2D values");
     model.result().table("tbl1").label("Probe Table 1");
     model.result().table("tbl2").label("Probe Table 2");
     model.result().table("tbl4").label("Objective Table 4");
 
-    model.component("comp1").view("view1").axis().set("xmin", -331.9606018066406);
-    model.component("comp1").view("view1").axis().set("xmax", 1531.9609375);
-    model.component("comp1").view("view1").axis().set("ymin", -448.9216003417969);
-    model.component("comp1").view("view1").axis().set("ymax", 898.9215698242188);
+    model.component("comp1").view("view1").axis().set("xmin", -30.000059127807617);
+    model.component("comp1").view("view1").axis().set("xmax", 1230);
+    model.component("comp1").view("view1").axis().set("ymin", -233.37283325195312);
+    model.component("comp1").view("view1").axis().set("ymax", 733.372802734375);
 
     model.component("comp1").material("mat6").label("Oxygen");
     model.component("comp1").material("mat6").set("family", "air");
@@ -195,7 +191,7 @@ public class Molybdenum2DModel {
          .set("pieces", new String[][]{{"150.0", "600.0", "-0.0070110303+1.688723E-4*T^1-2.28911422E-7*T^2+1.6991453E-10*T^3"}});
     model.component("comp1").material("mat6").propertyGroup("def").func("k").set("argunit", "K");
     model.component("comp1").material("mat6").propertyGroup("def").func("k").set("fununit", "W/(m*K)");
-    model.component("comp1").material("mat6").propertyGroup("def").set("dynamicviscosity", "0.01");
+    model.component("comp1").material("mat6").propertyGroup("def").set("dynamicviscosity", "eta(T)");
     model.component("comp1").material("mat6").propertyGroup("def").set("ratioofspecificheat", "1.4");
     model.component("comp1").material("mat6").propertyGroup("def").set("heatcapacity", "Cp(T)");
     model.component("comp1").material("mat6").propertyGroup("def").set("density", "rho(pA,T)");
@@ -235,7 +231,7 @@ public class Molybdenum2DModel {
     model.component("comp1").material("mat7").propertyGroup("def").func("an1").set("fununit", "J/(g*K)");
     model.component("comp1").material("mat7").propertyGroup("def").func("an1").set("argunit", new String[]{"K"});
     model.component("comp1").material("mat7").propertyGroup("def").func("an1")
-         .set("plotargs", new String[][]{{"T", "300", "2500"}});
+         .set("plotargs", new String[][]{{"T", "2000", "2550"}});
     model.component("comp1").material("mat7").propertyGroup("def").func("an2").label("sigma");
     model.component("comp1").material("mat7").propertyGroup("def").func("an2").set("funcname", "sigma");
     model.component("comp1").material("mat7").propertyGroup("def").func("an2")
@@ -245,15 +241,6 @@ public class Molybdenum2DModel {
     model.component("comp1").material("mat7").propertyGroup("def").func("an2").set("argunit", new String[]{"K"});
     model.component("comp1").material("mat7").propertyGroup("def").func("an2")
          .set("plotargs", new String[][]{{"T", "0", "3000"}});
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3").label("mu");
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3").set("funcname", "mu");
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3")
-         .set("expr", "0.27 * exp(73e3 / (R*T) ) * 0.001");
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3").set("args", new String[]{"T"});
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3").set("fununit", "Pa*s");
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3").set("argunit", new String[]{"K"});
-    model.component("comp1").material("mat7").propertyGroup("def").func("an3")
-         .set("plotargs", new String[][]{{"T", "1000", "3000"}});
     model.component("comp1").material("mat7").propertyGroup("def").func("an4").label("rho");
     model.component("comp1").material("mat7").propertyGroup("def").func("an4").set("funcname", "rho");
     model.component("comp1").material("mat7").propertyGroup("def").func("an4")
@@ -271,6 +258,14 @@ public class Molybdenum2DModel {
     model.component("comp1").material("mat7").propertyGroup("def").func("an5").set("argunit", new String[]{"K"});
     model.component("comp1").material("mat7").propertyGroup("def").func("an5")
          .set("plotargs", new String[][]{{"T", "0", "1"}});
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").label("mu");
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").set("funcname", "mu");
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").set("arg", "T");
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").set("smooth", "contd2");
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1")
+         .set("pieces", new String[][]{{"200", "500", "120"}, {"500", "3000", "0.27 * exp(73e3 / (R*T) ) * 0.001"}});
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").set("argunit", "K");
+    model.component("comp1").material("mat7").propertyGroup("def").func("pw1").set("fununit", "Pa*s");
     model.component("comp1").material("mat7").propertyGroup("def")
          .set("thermalexpansioncoefficient", new String[]{"5.3e-5[1/K]", "0", "0", "0", "5.3e-5[1/K]", "0", "0", "0", "5.3e-5[1/K]"});
     model.component("comp1").material("mat7").propertyGroup("def").set("density", "10200[kg/m^3]");
@@ -302,14 +297,13 @@ public class Molybdenum2DModel {
     model.component("comp1").physics("spf").feature("init1").set("p_init", "1[atm]");
     model.component("comp1").physics("spf").feature("init1")
          .set("CompensateForHydrostaticPressureApproximation", false);
-    model.component("comp1").physics("spf").feature("wallbc1").set("BoundaryCondition", "NavierSlip");
-    model.component("comp1").physics("spf").feature("wallbc1").set("beta_factor", 0.1);
+    model.component("comp1").physics("spf").feature("init1").set("CompensateForHydrostaticPressure", false);
+    model.component("comp1").physics("spf").feature("wallbc1").set("beta_factor", 1);
     model.component("comp1").physics("spf").feature("vf2").set("F", new String[][]{{"Fstx"}, {"Fsty"}, {"0"}});
     model.component("comp1").physics("spf").feature("vf2").label("Surface Tension");
     model.component("comp1").physics("spf").feature("out1").set("p0", "1 [atm]");
     model.component("comp1").physics("spf").feature("out1").set("NormalFlow", true);
-    model.component("comp1").physics("spf").feature("out1")
-         .set("CompensateForHydrostaticPressureApproximation", false);
+    model.component("comp1").physics("spf").feature("out1").set("CompensateForHydrostaticPressure", false);
     model.component("comp1").physics("pf").prop("ShapeProperty").set("order_phasefield", 2);
     model.component("comp1").physics("pf").feature("pfm1").set("epsilon_pf", "epsilon");
     model.component("comp1").physics("pf").feature("pfm1").set("chi", 0);
@@ -336,7 +330,7 @@ public class Molybdenum2DModel {
     model.component("comp1").physics("ht").feature("hs1").set("materialType", "nonSolid");
     model.component("comp1").physics("ht").feature("hs2").set("Q0", "Qr");
     model.component("comp1").physics("ht").feature("hs2").set("materialType", "nonSolid");
-    model.component("comp1").physics("ht").feature("hf1").set("q0_input", "k*(Tamb - T) / ht.dz");
+    model.component("comp1").physics("ht").feature("hf1").set("q0_input", "k*(Tamb - T) / dwidth");
     model.component("comp1").physics("rteeq").label("RTE");
     model.component("comp1").physics("rteeq").prop("ShapeProperty").set("order", 1);
     model.component("comp1").physics("rteeq").prop("ShapeProperty").set("valueType", "real");
@@ -355,14 +349,14 @@ public class Molybdenum2DModel {
     model.component("comp1").mesh("mesh3").feature("size").set("hgrad", 2);
     model.component("comp1").mesh("mesh3").feature("ftri1").set("smoothmaxiter", 10);
     model.component("comp1").mesh("mesh3").feature("ftri1").set("smoothmaxdepth", 8);
-    model.component("comp1").mesh("mesh3").feature("ftri1").set("method", "af");
+    model.component("comp1").mesh("mesh3").feature("ftri1").set("method", "del");
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hauto", 3);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("custom", "on");
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hmax", "0.3*D");
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hmaxactive", true);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hmin", "0.15*D");
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hminactive", true);
-    model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurve", 1);
+    model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurve", 0.5);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hcurveactive", true);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hnarrow", 0.1);
     model.component("comp1").mesh("mesh3").feature("ftri1").feature("size1").set("hnarrowactive", true);
@@ -385,19 +379,14 @@ public class Molybdenum2DModel {
     model.component("comp1").probe("point4").set("table", "tbl2");
     model.component("comp1").probe("point4").set("window", "window2");
 
-    model.ode("conpar1").type("control");
-    model.ode("conpar1").state(new String[]{"vlaser"});
-    model.ode("conpar3").type("control");
-    model.ode("conpar3").state(new String[]{"laserpenetration"});
-    model.ode("conpar5").type("control");
-    model.ode("conpar5").state(new String[]{"Ep"});
-
     model.component("comp1").physics("ht").feature("fluid1").set("minput_pressure_src", "root.comp1.spf.pA");
 
     model.study().create("std1");
-    model.study("std1").create("opt", "Optimization");
     model.study("std1").create("phasei", "PhaseInitialization");
     model.study("std1").create("time", "Transient");
+    model.study("std1").feature("phasei")
+         .set("activate", new String[]{"spf", "off", "pf", "on", "ht", "on", "rteeq", "off", "frame:spatial1", "on", 
+         "frame:material1", "on"});
 
     model.sol().create("sol1");
     model.sol("sol1").study("std1");
@@ -426,14 +415,14 @@ public class Molybdenum2DModel {
     model.sol("sol1").feature("t1").feature("i1").feature("mg1").feature("po").create("sc1", "SCGS");
     model.sol("sol1").feature("t1").feature("i1").feature("mg1").feature("cs").create("d1", "Direct");
     model.sol("sol1").feature("t1").feature("i2").create("bns1", "BlockNavierStokes");
+    model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").create("mg1", "Multigrid");
+    model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").feature("mg1").feature("pr")
+         .create("sl1", "SORLine");
 
     return model;
   }
 
   public static Model run2(Model model) {
-    model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").create("mg1", "Multigrid");
-    model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").feature("mg1").feature("pr")
-         .create("sl1", "SORLine");
     model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").feature("mg1").feature("po")
          .create("sl1", "SORLine");
     model.sol("sol1").feature("t1").feature("i2").feature("bns1").feature("vs").feature("mg1").feature("cs")
@@ -510,12 +499,19 @@ public class Molybdenum2DModel {
     model.sol().create("sol19");
     model.sol("sol19").study("std1");
     model.sol("sol19").label("Parametric Solutions 2");
+    model.sol().create("sol33");
+    model.sol("sol33").study("std1");
+    model.sol("sol33").label("Parametric Solutions 3");
+    model.sol().create("sol35");
+    model.sol("sol35").study("std1");
+    model.sol("sol35").label("Parametric Solutions 4");
 
     model.result().dataset().create("an1_ds1", "Grid1D");
-    model.result().dataset().create("dset7", "Solution");
     model.result().dataset().create("avh4", "Average");
     model.result().dataset().create("avh5", "Average");
-    model.result().dataset().create("dset8", "Solution");
+    model.result().dataset().create("dset9", "Solution");
+    model.result().dataset().create("dset10", "Solution");
+    model.result().dataset().create("pw1_ds1", "Grid1D");
     model.result().dataset("dset3").set("probetag", "point4");
     model.result().dataset("dset4").set("solution", "sol3");
     model.result().dataset("an1_ds1").set("data", "none");
@@ -532,8 +528,13 @@ public class Molybdenum2DModel {
     model.result().dataset("avh5").selection().geom("geom2", 0);
     model.result().dataset("avh5").selection().set(6, 11, 16, 21, 26, 31, 36, 41, 46, 51);
     model.result().dataset("dset8").set("solution", "sol19");
+    model.result().dataset("dset9").set("solution", "sol33");
+    model.result().dataset("dset10").set("solution", "sol35");
+    model.result().dataset("pw1_ds1").set("data", "none");
     model.result().numerical().create("pev4", "EvalPoint");
+    model.result().numerical().create("pev5", "EvalPoint");
     model.result().numerical("pev4").set("probetag", "point3");
+    model.result().numerical("pev5").set("probetag", "point4");
     model.result().create("pg1", "PlotGroup2D");
     model.result().create("pg10", "PlotGroup2D");
     model.result().create("pg2", "PlotGroup2D");
@@ -541,12 +542,13 @@ public class Molybdenum2DModel {
     model.result().create("pg4", "PlotGroup2D");
     model.result().create("pg7", "PlotGroup1D");
     model.result().create("pg8", "PlotGroup2D");
+    model.result().create("pg11", "PlotGroup1D");
     model.result("pg1").set("data", "dset5");
     model.result("pg1").create("surf1", "Surface");
     model.result("pg1").create("con1", "Contour");
     model.result("pg1").feature("surf1").set("expr", "Qlaser");
     model.result("pg1").feature("con1").set("expr", "pf.Vf2");
-    model.result("pg10").set("data", "dset8");
+    model.result("pg10").set("data", "dset5");
     model.result("pg10").create("surf1", "Surface");
     model.result("pg10").create("con1", "Contour");
     model.result("pg10").feature("surf1").set("expr", "T");
@@ -556,7 +558,7 @@ public class Molybdenum2DModel {
     model.result("pg2").create("con1", "Contour");
     model.result("pg2").feature("surf1").set("expr", "pf.Vf2");
     model.result("pg2").feature("con1").set("expr", "p");
-    model.result("pg3").set("data", "dset5");
+    model.result("pg3").set("data", "dset10");
     model.result("pg3").create("surf1", "Surface");
     model.result("pg3").create("con1", "Contour");
     model.result("pg3").create("arwl1", "ArrowLine");
@@ -574,33 +576,21 @@ public class Molybdenum2DModel {
     model.result("pg8").set("data", "dset5");
     model.result("pg8").create("surf1", "Surface");
     model.result("pg8").feature("surf1").set("expr", "rho");
+    model.result("pg11").create("plot1", "Function");
+    model.result("pg11").feature("plot1").set("expr", "comp1.mat7.def.mu(T)");
     model.result().export().create("anim1", "Animation");
     model.result().export().create("anim2", "Animation");
     model.result().export().create("anim3", "Animation");
+    model.result().export().create("data1", "Data");
 
     model.component("comp1").probe("point3").genResult(null);
     model.component("comp1").probe("point4").genResult(null);
 
-    model.study("std1").feature("opt").set("optsolver", "montecarlo");
-    model.study("std1").feature("opt").set("nsolvemax", 50);
-    model.study("std1").feature("opt").set("keepsol", "all");
-    model.study("std1").feature("opt").set("err", false);
-    model.study("std1").feature("opt").set("optobj", new String[]{"comp1.rhoprobe"});
-    model.study("std1").feature("opt").set("descr", new String[]{""});
-    model.study("std1").feature("opt").set("optobjEvaluateFor", new String[]{"time"});
-    model.study("std1").feature("opt").set("objectivetype", "maximization");
-    model.study("std1").feature("opt").set("initval", new String[]{"500 [mm/s]", "500 [um]", "100 [W]"});
-    model.study("std1").feature("opt").set("scale", new String[]{"1", "1e-6", "1"});
-    model.study("std1").feature("opt").set("lbound", new String[]{"50 [mm/s]", "100 [um]", "50"});
-    model.study("std1").feature("opt").set("ubound", new String[]{"1000 [mm/s]", "600 [um]", "500"});
-    model.study("std1").feature("opt").set("pname", new String[]{"vlaser", "laserpenetration", "Ep"});
-    model.study("std1").feature("opt").set("objtable", "tbl4");
-    model.study("std1").feature("opt").set("pdistrib", true);
-    model.study("std1").feature("time").set("tlist", "range(0,0.005,0.04)");
+    model.study("std1").feature("time").set("tlist", "range(0,0.0001,0.04)");
     model.study("std1").feature("time").set("usertol", true);
     model.study("std1").feature("time").set("rtol", 0.1);
     model.study("std1").feature("time").set("plot", true);
-    model.study("std1").feature("time").set("plotgroup", "pg3");
+    model.study("std1").feature("time").set("plotgroup", "pg10");
     model.study("std1").feature("time").set("plotfreq", "tsteps");
     model.study("std1").feature("time").set("useinitsol", true);
     model.study("std1").feature("time").set("initstudy", "std1");
@@ -608,12 +598,6 @@ public class Molybdenum2DModel {
 
     model.sol("sol1").feature("st1").label("Compile Equations: Phase Initialization");
     model.sol("sol1").feature("v1").label("Dependent Variables 1.1");
-    model.sol("sol1").feature("v1").feature("conpar1").set("scalemethod", "manual");
-    model.sol("sol1").feature("v1").feature("conpar1").set("scaleval", 1);
-    model.sol("sol1").feature("v1").feature("conpar3").set("scalemethod", "manual");
-    model.sol("sol1").feature("v1").feature("conpar3").set("scaleval", 1.0E-6);
-    model.sol("sol1").feature("v1").feature("conpar5").set("scalemethod", "manual");
-    model.sol("sol1").feature("v1").feature("conpar5").set("scaleval", 1);
     model.sol("sol1").feature("s1").label("Stationary Solver 1.1");
     model.sol("sol1").feature("s1").feature("dDef").label("Direct 2");
     model.sol("sol1").feature("s1").feature("aDef").label("Advanced 1");
@@ -676,18 +660,16 @@ public class Molybdenum2DModel {
     model.sol("sol1").feature("v2").set("clist", new String[]{"range(0,0.001,1)", "0.001[s]"});
     model.sol("sol1").feature("v2").feature("comp1_phipf").set("scalemethod", "manual");
     model.sol("sol1").feature("v2").feature("comp1_phipf").set("scaleval", 1);
-    model.sol("sol1").feature("v2").feature("conpar3").set("scalemethod", "manual");
-    model.sol("sol1").feature("v2").feature("conpar5").set("scalemethod", "manual");
     model.sol("sol1").feature("t1").label("Time-Dependent Solver 1.1");
     model.sol("sol1").feature("t1").set("tlist", "range(0,0.001,1)");
     model.sol("sol1").feature("t1").set("rtol", 0.005);
     model.sol("sol1").feature("t1").set("atolglobalfactor", 0.05);
     model.sol("sol1").feature("t1")
          .set("atolmethod", new String[]{"comp1_GI", "global", "comp1_p", "scaled", "comp1_phipf", "global", "comp1_psi", "global", "comp1_T", "global", 
-         "comp1_u", "global", "comp1_Grad", "global", "conpar1", "global", "conpar3", "global", "conpar5", "global"});
+         "comp1_u", "global", "comp1_Grad", "global"});
     model.sol("sol1").feature("t1")
          .set("atolfactor", new String[]{"comp1_GI", "0.1", "comp1_p", "1", "comp1_phipf", "0.1", "comp1_psi", "0.1", "comp1_T", "0.1", 
-         "comp1_u", "0.1", "comp1_Grad", "0.1", "conpar1", "0.1", "conpar3", "0.1", "conpar5", "0.1"});
+         "comp1_u", "0.1", "comp1_Grad", "0.1"});
     model.sol("sol1").feature("t1").set("maxorder", 2);
     model.sol("sol1").feature("t1").set("stabcntrl", true);
     model.sol("sol1").feature("t1").set("bwinitstepfrac", 0.01);
@@ -856,19 +838,8 @@ public class Molybdenum2DModel {
     model.sol("sol4").feature("st1").label("Compile Equations: Phase Initialization");
     model.sol("sol4").feature("v1").label("Dependent Variables 1.1");
     model.sol("sol4").feature("v1").set("clist", new String[]{"4.0E-5[s]"});
-    model.sol("sol4").feature("v1").feature("conpar1").set("scalemethod", "manual");
-    model.sol("sol4").feature("v1").feature("conpar1").set("scaleval", 1);
-    model.sol("sol4").feature("v1").feature("conpar3").set("scalemethod", "manual");
-    model.sol("sol4").feature("v1").feature("conpar3").set("scaleval", 1.0E-6);
-    model.sol("sol4").feature("v1").feature("conpar5").set("scalemethod", "manual");
-    model.sol("sol4").feature("v1").feature("conpar5").set("scaleval", 1);
     model.sol("sol4").feature("s1").label("Stationary Solver 1.1");
     model.sol("sol4").feature("s1").feature("dDef").label("Direct 2");
-
-    return model;
-  }
-
-  public static Model run3(Model model) {
     model.sol("sol4").feature("s1").feature("aDef").label("Advanced 1");
     model.sol("sol4").feature("s1").feature("aDef").set("cachepattern", true);
     model.sol("sol4").feature("s1").feature("fc1").label("Fully Coupled 1.1");
@@ -891,6 +862,11 @@ public class Molybdenum2DModel {
     model.sol("sol4").feature("s1").feature("i1").feature("mg1").feature("pr").label("Presmoother 1");
     model.sol("sol4").feature("s1").feature("i1").feature("mg1").feature("pr").feature("soDef").label("SOR 1");
     model.sol("sol4").feature("s1").feature("i1").feature("mg1").feature("pr").feature("sl1").label("SOR Line 1.1");
+
+    return model;
+  }
+
+  public static Model run3(Model model) {
     model.sol("sol4").feature("s1").feature("i1").feature("mg1").feature("pr").feature("sl1")
          .set("linesweeptype", "ssor");
     model.sol("sol4").feature("s1").feature("i1").feature("mg1").feature("pr").feature("sl1").set("iter", 1);
@@ -926,26 +902,22 @@ public class Molybdenum2DModel {
     model.sol("sol4").feature("v2").set("notsol", "sol4");
     model.sol("sol4").feature("v2").set("notsoluse", "sol5");
     model.sol("sol4").feature("v2").set("notsolnum", "auto");
-    model.sol("sol4").feature("v2").set("clist", new String[]{"range(0,0.005,0.04)", "4.0E-5[s]"});
+    model.sol("sol4").feature("v2").set("clist", new String[]{"range(0,0.0001,0.04)", "4.0E-5[s]"});
     model.sol("sol4").feature("v2").feature("comp1_phipf").set("scalemethod", "manual");
     model.sol("sol4").feature("v2").feature("comp1_phipf").set("scaleval", 1);
-    model.sol("sol4").feature("v2").feature("conpar1").set("scalemethod", "manual");
-    model.sol("sol4").feature("v2").feature("conpar1").set("scaleval", 1);
-    model.sol("sol4").feature("v2").feature("conpar3").set("scalemethod", "manual");
-    model.sol("sol4").feature("v2").feature("conpar3").set("scaleval", 1.0E-6);
-    model.sol("sol4").feature("v2").feature("conpar5").set("scalemethod", "manual");
-    model.sol("sol4").feature("v2").feature("conpar5").set("scaleval", 1);
+    model.sol("sol4").feature("v2").feature("comp1_T").set("scalemethod", "manual");
+    model.sol("sol4").feature("v2").feature("comp1_T").set("scaleval", 10);
     model.sol("sol4").feature("t1").label("Time-Dependent Solver 1.1");
     model.sol("sol4").feature("t1").set("control", "time");
-    model.sol("sol4").feature("t1").set("tlist", "range(0,0.005,0.04)");
+    model.sol("sol4").feature("t1").set("tlist", "range(0,0.0001,0.04)");
     model.sol("sol4").feature("t1").set("rtol", 0.1);
-    model.sol("sol4").feature("t1").set("atolglobalfactor", 0.05);
+    model.sol("sol4").feature("t1").set("atolglobalfactor", 1);
     model.sol("sol4").feature("t1")
          .set("atolmethod", new String[]{"comp1_GI", "global", "comp1_p", "scaled", "comp1_phipf", "global", "comp1_psi", "global", "comp1_T", "global", 
-         "comp1_u", "global", "comp1_Grad", "global", "conpar1", "global", "conpar3", "global", "conpar5", "global"});
+         "comp1_u", "global", "comp1_Grad", "global"});
     model.sol("sol4").feature("t1")
          .set("atolfactor", new String[]{"comp1_GI", "0.1", "comp1_p", "1", "comp1_phipf", "0.1", "comp1_psi", "0.1", "comp1_T", "0.1", 
-         "comp1_u", "0.1", "comp1_Grad", "0.1", "conpar1", "0.1", "conpar3", "0.1", "conpar5", "0.1"});
+         "comp1_u", "0.1", "comp1_Grad", "0.1"});
     model.sol("sol4").feature("t1").set("maxstepconstraintbdf", "const");
     model.sol("sol4").feature("t1").set("maxstepbdf", 0.001);
     model.sol("sol4").feature("t1").set("maxorder", 1);
@@ -953,7 +925,7 @@ public class Molybdenum2DModel {
     model.sol("sol4").feature("t1").set("bwinitstepfrac", 0.01);
     model.sol("sol4").feature("t1").set("estrat", "exclude");
     model.sol("sol4").feature("t1").set("plot", true);
-    model.sol("sol4").feature("t1").set("plotgroup", "pg3");
+    model.sol("sol4").feature("t1").set("plotgroup", "pg10");
     model.sol("sol4").feature("t1").set("plotfreq", "tsteps");
     model.sol("sol4").feature("t1").feature("dDef").label("Direct 2");
     model.sol("sol4").feature("t1").feature("aDef").label("Advanced 1");
@@ -961,7 +933,7 @@ public class Molybdenum2DModel {
     model.sol("sol4").feature("t1").feature("fc1").label("Fully Coupled 1.1");
     model.sol("sol4").feature("t1").feature("fc1").set("linsolver", "d1");
     model.sol("sol4").feature("t1").feature("fc1").set("dtech", "auto");
-    model.sol("sol4").feature("t1").feature("fc1").set("maxiter", 8);
+    model.sol("sol4").feature("t1").feature("fc1").set("maxiter", 15);
     model.sol("sol4").feature("t1").feature("fc1").set("ntolfact", 0.05);
     model.sol("sol4").feature("t1").feature("fc1").set("termonres", "both");
     model.sol("sol4").feature("t1").feature("d1").label("Direct, heat transfer variables (ht) (merged)");
@@ -1116,22 +1088,28 @@ public class Molybdenum2DModel {
     model.sol("sol4").runAll();
 
     model.result().dataset("dset3").label("Probe Solution 3");
-    model.result().dataset("an1_ds1").label("Grid 1D 1a");
+    model.result().dataset("an1_ds1").label("Grid 1D 1a 1");
     model.result().dataset("an1_ds1").set("function", "all");
     model.result().dataset("an1_ds1").set("par1", "T");
     model.result().dataset("an1_ds1").set("parmin1", 300);
     model.result().dataset("an1_ds1").set("parmax1", 400);
     model.result().dataset("an1_ds1").set("res1", 10000);
     model.result().dataset("an1_ds1").set("distribution", "mixed");
-    model.result().numerical().remove("pev5");
+    model.result().dataset("pw1_ds1").set("functionlist", "material/mat7/def");
+    model.result().dataset("pw1_ds1").label("Grid 1D 1");
+    model.result().dataset("pw1_ds1").set("function", "pw1");
+    model.result().dataset("pw1_ds1").set("par1", "T");
+    model.result().dataset("pw1_ds1").set("parmin1", -80);
+    model.result().dataset("pw1_ds1").set("parmax1", 3280);
+    model.result().dataset("pw1_ds1").set("res1", 10000);
+    model.result().dataset("pw1_ds1").set("distribution", "mixed");
     model.result().numerical("pev4").setResult();
     model.result("pg1").label("Heating and Volume Fraction");
-    model.result("pg1").set("looplevel", new int[]{21});
+    model.result("pg1").set("looplevel", new int[]{218});
     model.result("pg1").set("titletype", "label");
     model.result("pg1").set("edges", false);
     model.result("pg1").set("showlegendsmaxmin", true);
     model.result("pg1").set("showlegendsunit", true);
-    model.result("pg1").feature("surf1").set("unit", "W/m^3");
     model.result("pg1").feature("surf1").set("coloring", "gradient");
     model.result("pg1").feature("surf1").set("topcolor", "red");
     model.result("pg1").feature("surf1").set("bottomcolor", "white");
@@ -1141,6 +1119,7 @@ public class Molybdenum2DModel {
     model.result("pg1").feature("con1").set("bottomcolor", "white");
     model.result("pg1").feature("con1").set("resolution", "normal");
     model.result("pg10").label("Temperature and Volume Fraction");
+    model.result("pg10").set("looplevel", new int[]{394});
     model.result("pg10").set("titletype", "label");
     model.result("pg10").set("edges", false);
     model.result("pg10").set("showlegendsmaxmin", true);
@@ -1176,10 +1155,11 @@ public class Molybdenum2DModel {
     model.result("pg3").feature("arwl1").set("scale", 4.224745667893173E7);
     model.result("pg3").feature("arwl1").set("scaleactive", false);
     model.result("pg4").label("Viscosity");
-    model.result("pg4").set("looplevel", new int[]{13});
+    model.result("pg4").set("looplevel", new int[]{218});
     model.result("pg4").set("titletype", "manual");
     model.result("pg4").set("title", "Fluid viscosity (Pa*s) with Volume Fraction contours");
     model.result("pg4").set("paramindicator", "t=eval(t,s) (s)");
+    model.result("pg4").set("showlegendsmaxmin", true);
     model.result("pg4").feature("surf1").set("descr", "mu");
     model.result("pg4").feature("surf1").set("coloring", "gradient");
     model.result("pg4").feature("surf1").set("topcolor", "magenta");
@@ -1203,15 +1183,35 @@ public class Molybdenum2DModel {
     model.result("pg7").feature("tblp4").set("legend", true);
     model.result("pg7").feature().remove("tblp5");
     model.result("pg8").label("Density");
-    model.result("pg8").set("looplevel", new int[]{13});
+    model.result("pg8").set("looplevel", new int[]{218});
     model.result("pg8").set("showlegendsmaxmin", true);
     model.result("pg8").feature("surf1").set("colortable", "Twilight");
     model.result("pg8").feature("surf1").set("resolution", "normal");
+    model.result("pg11").label("Viscosity Plot");
+    model.result("pg11").set("data", "pw1_ds1");
+    model.result("pg11").set("solrepresentation", "solnum");
+    model.result("pg11").set("titletype", "manual");
+    model.result("pg11").set("title", "Temperature Dependent Viscosity of Molybdenum");
+    model.result("pg11").set("xlabel", "Temperature (K)");
+    model.result("pg11").set("xlabelactive", true);
+    model.result("pg11").set("ylabel", "Viscosity (Pa s)");
+    model.result("pg11").set("ylabelactive", true);
+    model.result("pg11").feature("plot1").set("solrepresentation", "solnum");
+    model.result("pg11").feature("plot1").set("unit", "");
+    model.result("pg11").feature("plot1").set("descr", "mu(T)");
+    model.result("pg11").feature("plot1").set("xdataexpr", "T");
+    model.result("pg11").feature("plot1").set("xdataunit", "m");
+    model.result("pg11").feature("plot1").set("xdatadescractive", true);
+    model.result("pg11").feature("plot1").set("xdatadescr", "");
+    model.result("pg11").feature("plot1").set("lowerbound", 200);
+    model.result("pg11").feature("plot1").set("upperbound", 3000);
+    model.result("pg11").feature("plot1").set("extrapolation", "leftright");
+    model.result("pg11").feature("plot1").set("linewidth", "preference");
     model.result().export("anim1").label("Temperature and Vf2");
     model.result().export("anim1").set("plotgroup", "pg10");
-    model.result().export("anim1").set("giffilename", "/work/users/m/s/mshourya/SLS/Complete/Results/T+Vf2.gif");
-    model.result().export("anim1").set("singlelooplevel", new int[]{1, 1});
-    model.result().export("anim1").set("maxframes", 300);
+    model.result().export("anim1").set("giffilename", "/users/m/s/mshourya/SLS/Complete/Results/T+Vf2.gif");
+    model.result().export("anim1").set("fps", 50);
+    model.result().export("anim1").set("framesel", "all");
     model.result().export("anim1").set("size", "current");
     model.result().export("anim1").set("repeat", "forever");
     model.result().export("anim1").set("fontsize", "9");
@@ -1238,7 +1238,7 @@ public class Molybdenum2DModel {
     model.result().export("anim1").set("showgrid", "on");
     model.result().export("anim2").label("Pressure and Vf2");
     model.result().export("anim2").set("plotgroup", "pg2");
-    model.result().export("anim2").set("giffilename", "/work/users/m/s/mshourya/SLS/Complete/Results/p+Vf2.gif");
+    model.result().export("anim2").set("giffilename", "/users/m/s/mshourya/SLS/Complete/Results/p+Vf2.gif");
     model.result().export("anim2").set("fps", 50);
     model.result().export("anim2").set("framesel", "all");
     model.result().export("anim2").set("size", "current");
@@ -1266,9 +1266,9 @@ public class Molybdenum2DModel {
     model.result().export("anim2").set("axes2d", "on");
     model.result().export("anim2").set("showgrid", "on");
     model.result().export("anim3").label("Heating and Vf2");
-    model.result().export("anim3")
-         .set("giffilename", "/work/users/m/s/mshourya/SLS/Complete/Results/Heating+Vf2.gif");
-    model.result().export("anim3").set("maxframes", 300);
+    model.result().export("anim3").set("giffilename", "/users/m/s/mshourya/SLS/Complete/Results/Heating+Vf2.gif");
+    model.result().export("anim3").set("fps", 50);
+    model.result().export("anim3").set("framesel", "all");
     model.result().export("anim3").set("size", "current");
     model.result().export("anim3").set("repeat", "forever");
     model.result().export("anim3").set("fontsize", "9");
@@ -1293,6 +1293,12 @@ public class Molybdenum2DModel {
     model.result().export("anim3").set("axes1d", "on");
     model.result().export("anim3").set("axes2d", "on");
     model.result().export("anim3").set("showgrid", "on");
+    model.result().export("data1").label("Average Density");
+    model.result().export("data1").set("data", "avh4");
+    model.result().export("data1").set("looplevelinput", new String[]{"all"});
+    model.result().export("data1").set("filename", "/users/m/s/mshourya/SLS/Complete/Results/densityprobe.csv");
+    model.result().export("data1").set("smooth", "internal");
+    model.result().export("data1").set("separator", ",");
 
     return model;
   }
