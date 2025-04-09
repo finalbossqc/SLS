@@ -1,0 +1,5 @@
+# Modeling and Simulation of Selective Laser Sintering with COMSOL Multiphysics
+
+Among the various additive manufacturing (AM) techniques, powder bed fusion methods such as Selective Laser Melting (SLM) and Selective Laser Sintering (SLS) have garnered significant attention due to their ability to fabricate complex three-dimensional structures with high precision. SLM involves the use of a high-powered laser to fully melt metallic powder, creating dense, fully functional parts, whereas SLS typically employs a lower-energy laser to sinter polymer or metal powders without fully melting them. For the purposes of this work, the term SLS will be used to refer to both of these AM techniques.
+
+SLS offers several advantages that make it an attractive choice for advanced manufacturing applications. It provides exceptional design flexibility, allowing for the production of intricate geometries that would be difficult or impossible to achieve using traditional subtractive manufacturing techniques.
