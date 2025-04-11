@@ -1160,7 +1160,7 @@ public class Polyamide2DModel {
          .set("linsolver", "pardiso");
     model.sol("sol4").feature("t1").feature("i3").feature("mg1").feature("cs").feature("d1")
          .set("pivotperturb", 1.0E-13);
-    model.sol("sol4").runAll();
+    //model.sol("sol4").runAll();
 
     model.result().dataset("dset3").label("Probe Solution 3");
     model.result().dataset("an1_ds1").label("Grid 1D 1a");
