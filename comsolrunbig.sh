@@ -10,4 +10,4 @@
 
 module load comsol/6.1
 
-comsol batch -alloc scalable -usebatchlic -forcegcc -blas mkl -keeplicenses on -np 10 -inputfile $1 -study $2
+comsol batch -alloc scalable -usebatchlic -forcegcc -blas mkl -keeplicenses on -np 20 -inputfile $1 -study $2
