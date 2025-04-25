@@ -36,9 +36,11 @@ Once you have created the .mph file, you can run a batch job (a job that runs as
 
 The following statement runs Study 1 of the 2D Polyamide SLS model.
 
-```sbatch runcomsol2D.sh Polyamide2DModel_Model.mph std1```
+```sbatch comsolrun.sh Polyamide2DModel_Model.mph std1```
 
-You can change the SLURM parameters by editing the shell script ```runcomsol2D.sh```. By default, the time limit is 8 hours for the job and it requests 10 cpu cores.
+You can change the SLURM parameters by editing the shell script ```comsolrun.sh```. By default, the time limit is 8 hours for the job and it requests 10 cpu cores.
+
+For 3D simulations, make sure to use the script ```comsolrunbig.sh```, which requests 20 cpu cores for 12 hours. 
 
 ### Opening GUI on SLURM with HPC setup
 
