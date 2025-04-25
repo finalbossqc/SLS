@@ -32,7 +32,7 @@ This will generate a .mph file, which can be opened using the COMSOL GUI.
 
 ### Running batch jobs on SLURM with HPC setup
 
-Once you have created the .mph file, you can run a batch job (a job that runs asynchronously) on an HPC system by running the shellscript ```runcomsol2D.sh```. 
+Once you have created the .mph file, you can run a batch job (a job that runs asynchronously) on an HPC system by running the shellscript ```comsolrun.sh```. 
 
 The following statement runs Study 1 of the 2D Polyamide SLS model.
 
