@@ -70,6 +70,10 @@ On an HPC cluster, it is usually bad manners to do this on the login node, so wi
 
 Then open your model.
 
+# Further Information
+
+For more details on how to model works, refer to my thesis, which has been included in this repository.
+
 # Attribution
 
 If this computational model has proven useful to you, please cite the work.
