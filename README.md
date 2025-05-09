@@ -69,3 +69,19 @@ On an HPC cluster, it is usually bad manners to do this on the login node, so wi
 ```comsol```
 
 Then open your model.
+
+# Attribution
+
+If this computational model has proven useful to you, please cite the work.
+
+MLA:
+
+Mukherjee, Shourya. Modeling and Simulation of Selective Laser Sintering with Comsol Multiphysics. 2025.
+
+APA:
+
+Mukherjee, S. (2025). Modeling and Simulation of Selective Laser Sintering with COMSOL Multiphysics.
+
+Chicago:
+
+Mukherjee, Shourya. 2025. Modeling and Simulation of Selective Laser Sintering with Comsol Multiphysics.
