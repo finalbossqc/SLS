@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive>
+  <model>
+    <material tag="mat1" type="Common" component="">
+      <propertyGroup tag="def">
+        <func tag="eta" oper="Piecewise">
+          <set name="arg" value="T"/>
+          <set name="pieces" value="{{'150.0','600.0','-5.55818182E-7+9.24202797E-8*T^1-8.71841492E-11*T^2+4.82983683E-14*T^3'}}"/>
+          <set name="argunit" value="K"/>
+          <set name="fununit" value="Pa*s"/>
+        </func>
+        <func tag="Cp" oper="Piecewise">
+          <set name="arg" value="T"/>
+          <set name="pieces" value="{{'150.0','600.0','959.514545-0.416383077*T^1+7.63158508E-4*T^2+1.46018648E-6*T^3-3.24009324E-9*T^4+1.6E-12*T^5'}}"/>
+          <set name="argunit" value="K"/>
+          <set name="fununit" value="J/(kg*K)"/>
+        </func>
+        <func tag="rho" oper="Analytic">
+          <set name="expr" value="pA*0.032/R_const[K*mol/J]/T"/>
+          <set name="args" value="{'pA','T'}"/>
+          <set name="dermethod" value="manual"/>
+          <set name="argders" value="{{'pA','d(pA*0.032/R_const/T,pA)'},{'T','d(pA*0.032/R_const/T,T)'}}"/>
+          <set name="fununit" value="kg/m^3"/>
+          <set name="argunit" value="{'Pa','K'}"/>
+          <set name="plotargs" value="{{'pA','101325','101325'},{'T','273.15','293.15'}}"/>
+        </func>
+        <func tag="k" oper="Piecewise">
+          <set name="arg" value="T"/>
+          <set name="pieces" value="{{'150.0','600.0','-0.0070110303+1.688723E-4*T^1-2.28911422E-7*T^2+1.6991453E-10*T^3'}}"/>
+          <set name="argunit" value="K"/>
+          <set name="fununit" value="W/(m*K)"/>
+        </func>
+        <set name="dynamicviscosity" value="eta(T)"/>
+        <set name="ratioofspecificheat" value="1.4"/>
+        <set name="heatcapacity" value="Cp(T)"/>
+        <set name="density" value="rho(pA,T)"/>
+        <set name="thermalconductivity" value="{'k(T)','0','0','0','k(T)','0','0','0','k(T)'}"/>
+        <addInput quantity="temperature"/>
+        <addInput quantity="pressure"/>
+      </propertyGroup>
+      <propertyGroup tag="idealGas" descr="Ideal gas">
+        <func tag="Cp" oper="Piecewise">
+          <label label="Piecewise 2"/>
+          <set name="arg" value="T"/>
+          <set name="pieces" value="{{'150.0','600.0','959.514545-0.416383077*T^1+7.63158508E-4*T^2+1.46018648E-6*T^3-3.24009324E-9*T^4+1.6E-12*T^5'}}"/>
+          <set name="argunit" value="K"/>
+          <set name="fununit" value="J/(kg*K)"/>
+        </func>
+        <set name="Rs" value="R_const/Mn"/>
+        <set name="heatcapacity" value="Cp(T)"/>
+        <set name="ratioofspecificheat" value="1.4"/>
+        <set name="molarmass" value="0.03199"/>
+        <addInput quantity="temperature"/>
+        <addInput quantity="pressure"/>
+      </propertyGroup>
+      <label label="Oxygen"/>
+      <set name="family" value="air"/>
+    </material>
+    <material tag="mat2" type="Common" component="">
+      <propertyGroup tag="def">
+        <func tag="an1" oper="Analytic">
+          <label label="Cp"/>
+          <set name="funcname" value="Cp"/>
+          <set name="expr" value="(34.2 + 1.13 *10^(-3) * (T - 2896 [K] ) ) * ( 1 / 95.5 ) + 3.5183e5 * delta( T - 2896 [K] )"/>
+          <set name="args" value="{'T'}"/>
+          <set name="fununit" value="J/(g*K)"/>
+          <set name="argunit" value="{'K'}"/>
+          <set name="plotargs" value="{{'T','2000','2550'}}"/>
+        </func>
+        <func tag="an2" oper="Analytic">
+          <label label="sigma"/>
+          <set name="funcname" value="sigma"/>
+          <set name="expr" value="(2.29 * 10^3 - 0.26 * (T - 2896 [K]) ) * 0.001"/>
+          <set name="args" value="{'T'}"/>
+          <set name="fununit" value="N/m"/>
+          <set name="argunit" value="{'K'}"/>
+          <set name="plotargs" value="{{'T','0','3000'}}"/>
+        </func>
+        <func tag="an4" oper="Analytic">
+          <label label="rho"/>
+          <set name="funcname" value="rho"/>
+          <set name="expr" value="10.2*exp(12.270764915751679e-6*(273- T) + 0.008718337229355673e-6*(273^2 - T^2)/2 - 7.799703040318278e-12*(273^3 - T^3)/3 + 5.77704867949318e-15*(273^4 - T^4)/4)"/>
+          <set name="args" value="{'T'}"/>
+          <set name="fununit" value="g/cm^3"/>
+          <set name="argunit" value="{'K'}"/>
+          <set name="plotargs" value="{{'T','300','3000'}}"/>
+        </func>
+        <func tag="an5" oper="Analytic">
+          <label label="k"/>
+          <set name="funcname" value="k"/>
+          <set name="expr" value="138[W/(m*K)]"/>
+          <set name="args" value="{'T'}"/>
+          <set name="fununit" value="W/(m*K)"/>
+          <set name="argunit" value="{'K'}"/>
+          <set name="plotargs" value="{{'T','0','1'}}"/>
+        </func>
+        <func tag="pw1" oper="Piecewise">
+          <label label="mu"/>
+          <set name="funcname" value="mu"/>
+          <set name="arg" value="T"/>
+          <set name="smooth" value="contd2"/>
+          <set name="pieces" value="{{'200','500','120'},{'500','3000','0.27 * exp(73e3 / (R*T) ) * 0.001'}}"/>
+          <set name="argunit" value="K"/>
+          <set name="fununit" value="Pa*s"/>
+        </func>
+        <set name="thermalexpansioncoefficient" value="{'5.3e-5[1/K]','0','0','0','5.3e-5[1/K]','0','0','0','5.3e-5[1/K]'}"/>
+        <set name="density" value="10200[kg/m^3]"/>
+        <set name="heatcapacity" value="Cp(T)"/>
+        <set name="thermalconductivity" value="{'138[W/(m*K)]','0','0','0','138[W/(m*K)]','0','0','0','138[W/(m*K)]'}"/>
+      </propertyGroup>
+      <propertyGroup tag="Enu" descr="Young's modulus and Poisson's ratio">
+        <set name="E" value="312[GPa]"/>
+        <set name="nu" value="0.31"/>
+      </propertyGroup>
+      <propertyGroup tag="Murnaghan" descr="Murnaghan">
+        <set name="l" value="-300[GPa]"/>
+        <set name="m" value="-850[GPa]"/>
+        <set name="n" value="-910[GPa]"/>
+      </propertyGroup>
+      <label label="Molybdenum"/>
+      <set name="family" value="custom"/>
+      <set name="customspecular" valueDouble="{0.7843137254901961,1,1}"/>
+      <set name="customdiffuse" valueDouble="{0.7843137254901961,0.7843137254901961,0.7843137254901961}"/>
+      <set name="fresnel" valueDouble="0.3"/>
+      <set name="roughness" valueDouble="0.1"/>
+      <set name="metallic" valueInt="0"/>
+      <set name="pearl" valueInt="0"/>
+      <set name="diffusewrap" valueInt="0"/>
+      <set name="clearcoat" valueInt="0"/>
+      <set name="reflectance" valueInt="0"/>
+    </material>
+  </model>
+</archive>
+
